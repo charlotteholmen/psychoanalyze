@@ -1,11 +1,9 @@
-
 """Utilities for points-level data.
 
 **Points** correspond to the aggregate measures of method-of-constant-stimuli
 experiments at each stimulus level measured. For example, a block that samples 8
 stimulus intensity levels would have 8 corresponding points.
 """
-from pathlib import Path
 
 import numpy as np
 import plotly.express as px
@@ -14,16 +12,12 @@ from plotly import graph_objects as go
 from scipy.special import expit, logit
 from scipy.stats import logistic
 
-from psychoanalyze.data import subject as subject_utils
-from psychoanalyze.data import trials as pa_trials
-
 index_levels = ["Amp1", "Width1", "Freq1", "Dur1"]
 
 
 def from_trials(trials: pl.DataFrame) -> pl.DataFrame:
     """Aggregate point-level measures from trial data."""
-    trials = subject_utils.ensure_subject_column(trials)
-    points = trials.group_by(["Subject", "Block", "Intensity"]).agg(
+    points = trials.group_by(["Block", "Intensity"]).agg(
         pl.len().alias("n trials"),
         pl.sum("Result").alias("Hits"),
     )
@@ -38,13 +32,7 @@ def from_trials(trials: pl.DataFrame) -> pl.DataFrame:
         )
         .alias("logit(Hit Rate)"),
     )
-    return points.sort(["Subject", "Block", "Intensity"])
-
-
-def load(data_path: Path) -> pl.DataFrame:
-    """Load points data from csv."""
-    trials = pa_trials.load(data_path)
-    return from_trials(trials)
+    return points.sort(["Block", "Intensity"])
 
 
 def prep_fit(points: pl.DataFrame, dimension: str = "Amp1") -> dict:
@@ -75,25 +63,6 @@ def hits(
     )
 
 
-def generate(
-    n_trials: int,
-    options: list[float],
-    params: dict[str, float],
-) -> pl.DataFrame:
-    """Generate points-level data."""
-    n_df = generate_n(n_trials, options)
-    _hits = hits(n_df, params)
-    points = n_df.join(_hits, on="Intensity")
-    hit_rate = points["Hits"] / points["n"]
-    points = points.with_columns(hit_rate.alias("Hit Rate"))
-    logit_hit_rate = hit_rate.map_elements(
-        lambda x: logit(x) if 0 < x < 1 else None,
-        return_dtype=pl.Float64,
-    )
-    points = points.with_columns(logit_hit_rate.alias("logit(Hit Rate)"))
-    return points
-
-
 def generate_point(n: int, p: float) -> int:
     """Sample n hits from n trials and probability p from binomial dist."""
     return np.random.default_rng().binomial(n, p)
@@ -102,12 +71,6 @@ def generate_point(n: int, p: float) -> int:
 def datatable_data(data: pl.DataFrame) -> list[dict]:
     """Convert dataframe to Dash DataTable-friendly format."""
     return data.select(["Amp1", "Hit Rate", "n"]).to_dicts()
-
-
-def from_store(store_data: str) -> pl.DataFrame:
-    """Get points-level measures from trials-level data store."""
-    trials = pa_trials.from_store(store_data)
-    return from_trials(trials)
 
 
 def combine_plots(fig1: go.Figure, fig2: go.Figure) -> go.Figure:
@@ -121,15 +84,8 @@ def n(trials: list[float]) -> pl.DataFrame:
     return df.group_by("Intensity").agg(pl.len().alias("n"))
 
 
-def generate_n(n_trials: int, options: list[float]) -> pl.DataFrame:
-    """Simulate how many trials were performed per intensity level."""
-    trials_ix = pa_trials.generate_trial_index(n_trials, options)
-    return n(trials_ix)
-
-
 def to_block(points: pl.DataFrame) -> pl.DataFrame:
     """Aggregate to block-level measures from points-level data."""
-    points = subject_utils.ensure_subject_column(points)
     return points.group_by(["Subject", "Block"]).agg(
         pl.sum("n trials"),
         pl.sum("Hits"),

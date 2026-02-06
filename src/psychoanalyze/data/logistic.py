@@ -1,7 +1,8 @@
-
 """Utilities for working with logistic distributions."""
 
 from scipy.special import logit
+
+
 def to_intercept(location: float, scale: float) -> float:
     """Calculate the intercept of a logistic distribution given location and scale.
 
@@ -14,6 +15,8 @@ def to_intercept(location: float, scale: float) -> float:
 
     """
     return -location / scale
+
+
 def to_slope(scale: float) -> float:
     """Calculate the slope of a logistic distribution given scale.
 
@@ -25,6 +28,8 @@ def to_slope(scale: float) -> float:
 
     """
     return 1 / scale
+
+
 def min_x(intercept: float, slope: float) -> float:
     """Calculate the minimum x value to be sampled.
 

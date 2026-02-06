@@ -163,3 +163,6 @@ docs/notebooks/tutorial/*.html
 
 _site
 __marimo__
+
+allure-results
+allure-report

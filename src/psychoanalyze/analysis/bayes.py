@@ -1,5 +1,5 @@
-
 """Bayesian analysis of psychophysical data."""
+
 import plotly.express as px
 import plotly.graph_objects as go
 import polars as pl

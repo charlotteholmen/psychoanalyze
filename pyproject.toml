@@ -50,6 +50,9 @@ dependencies = [
     "wigglystuff>=0.2.0",
     "xarray>=2026.1.0",
     "pandas>=3.0.0",
+    "pytest>=9.0.2",
+    "pandera>=0.29.0",
+    "allure-pytest-bdd>=2.15.3",
 ]
 
 [project.scripts]
@@ -80,6 +83,9 @@ dev = [
     "python-lsp-ruff>=2.3.0",
     "vegafusion>=2.0.3",
     "vl-convert-python>=1.9.0.post1",
+    "datacontract-cli>=0.11.4",
+    "pytest-watcher>=0.6.3",
+    "pytest-bdd>=8.1.0",
 ]
 
 docs = [
@@ -120,13 +126,19 @@ skips = ["B311", "B104"]
 
 [tool.ruff]
 fix = true
+
+[tool.ruff.lint]
 ignore = ["S101", "S311", "D211", "D213", "RUF002", "CPY001"]
 
-[tool.ruff.pydocstyle]
+[tool.ruff.lint.pydocstyle]
 convention = "google"
 
-[tool.ruff.per-file-ignores]
+[tool.ruff.lint.per-file-ignores]
 "tests/*.py" = ["D100", "D103", "ANN201"]
+"nbs/*.py" = ["F841"]
+
+[tool.pytest.ini_options]
+addopts = ["--import-mode=importlib", "--alluredir=allure-results"]
 
 [build-system]
 requires = ["uv_build>=0.9.27,<0.10.0"]

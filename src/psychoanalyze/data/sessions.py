@@ -1,9 +1,9 @@
-
 """Utilities for session-level data.
 
 **Sessions** represent a single day of experiments performed by a subject. It may
 contain several blocks.
 """
+
 from pathlib import Path
 
 import polars as pl
@@ -67,6 +67,8 @@ def generate_trials(
     """Generate trial-level data for session-level context."""
     frames = []
     for day in range(n_days):
-        df = blocks.generate_trials(n_trials, model_params).with_columns(pl.lit(day).alias("Block"))
+        df = blocks.generate_trials(n_trials, model_params).with_columns(
+            pl.lit(day).alias("Block")
+        )
         frames.append(df)
     return pl.concat(frames)

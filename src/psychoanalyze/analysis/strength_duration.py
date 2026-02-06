@@ -1,9 +1,9 @@
-
 """Strength-duration analysis.
 
 Contains functions assessing the relationship
 between the amplitude and the time course of the stimulus.
 """
+
 import plotly.express as px
 import plotly.graph_objects as go
 import polars as pl

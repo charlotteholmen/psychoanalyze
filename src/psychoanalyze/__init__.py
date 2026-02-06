@@ -3,8 +3,7 @@ import pymc as pm
 import xarray as xr
 
 
-def fit(
-) -> xr.DataTree:
+def fit() -> xr.DataTree:
     with pm.Model():
         intercept = pm.Normal("intercept")
         slope = pm.HalfNormal("slope")

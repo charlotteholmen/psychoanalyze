@@ -207,14 +207,14 @@ You can see and explore issue relationships in several ways.
 
 ### 1. GitHub’s built-in UI
 
-- **Parent / sub-issues (Epics)**  
-  On each issue, the right sidebar shows **Sub-issues** (children) and, for sub-issues, **Parent issue**.  
+- **Parent / sub-issues (Epics)**
+  On each issue, the right sidebar shows **Sub-issues** (children) and, for sub-issues, **Parent issue**.
   On the repo **Issues** list, Epics show a progress summary (e.g. “3 of 6 sub-issues completed”).
 
-- **Blocked-by / blocking**  
+- **Blocked-by / blocking**
   If you use [issue dependencies](https://docs.github.com/en/issues/tracking-your-work-with-issues/using-issues/creating-issue-dependencies) (“blocked by” / “blocking”):
   - Filter: `is:blocked`, `blocked-by:#N`, `blocking:#N`.
-  - Blocked issues show a “Blocked” state on boards and in the issue list.  
+  - Blocked issues show a “Blocked” state on boards and in the issue list.
   There is no full dependency graph view in the GitHub UI; you see relationships per issue and via filters.
 
 ### 2. Diagram in this repo (parent → sub-issues)
@@ -261,11 +261,11 @@ flowchart TB
 
 To include **blocked-by / blocking** or to refresh the diagram from live data:
 
-- **Parent/sub-issues:**  
-  `GET /repos/{owner}/{repo}/issues/{issue_number}/parent` and  
+- **Parent/sub-issues:**
+  `GET /repos/{owner}/{repo}/issues/{issue_number}/parent` and
   `GET /repos/{owner}/{repo}/issues/{issue_number}/sub_issues`
-- **Dependencies:**  
-  `GET .../issues/{issue_number}/dependencies/blocked_by` and  
+- **Dependencies:**
+  `GET .../issues/{issue_number}/dependencies/blocked_by` and
   `GET .../issues/{issue_number}/dependencies/blocking`
 
 A small script (e.g. Python + `gh api` or `requests`) can collect these and output Mermaid, D2, or Graphviz. Example for parent-only:

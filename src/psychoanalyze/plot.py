@@ -1,4 +1,3 @@
-
 """Global plot settings and generic plot utilities."""
 
 import plotly.graph_objects as go

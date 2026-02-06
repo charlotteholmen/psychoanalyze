@@ -10,23 +10,23 @@ Use **Jujutsu (jj)** via the **user-jj** MCP server to find all revisions withou
 
 ## Steps
 
-1. **Find revisions without descriptions**  
+1. **Find revisions without descriptions**
    Call the jj **log** tool to list recent revisions. From the output, identify revisions that have:
    - Empty or "(no description set)" description
    - Actual changes (not empty commits)
    - Are mutable (not immutable/pushed commits)
-   
+
    Typically focus on revisions matching `@ | ancestors(@, 10) & mine() & ~root()` (recent local changes).
 
-2. **Examine all revisions first (can be parallel)**  
+2. **Examine all revisions first (can be parallel)**
    Call the jj **show** tool for each undescribed revision to see:
    - What files were changed
    - The actual diff content
    - Any existing metadata
-   
+
    You can batch multiple show calls in parallel since they are read-only.
 
-3. **Apply descriptions ONE AT A TIME (must be sequential)**  
+3. **Apply descriptions ONE AT A TIME (must be sequential)**
    For each revision, starting from the **oldest** and working toward the newest:
 
    a. **Generate an appropriate commit message** based on the changes:
@@ -41,7 +41,7 @@ Use **Jujutsu (jj)** via the **user-jj** MCP server to find all revisions withou
 
    c. **Wait for the describe to complete** before proceeding to the next revision.
 
-4. **Report results**  
+4. **Report results**
    After processing all revisions, summarize:
    - How many revisions were found without descriptions
    - What descriptions were applied to each

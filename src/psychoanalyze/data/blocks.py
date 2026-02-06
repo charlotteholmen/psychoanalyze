@@ -1,6 +1,5 @@
 from pathlib import Path
 
-import arviz as az
 import numpy as np
 import plotly.express as px
 import plotly.graph_objects as go
@@ -8,8 +7,7 @@ import polars as pl
 from scipy.special import expit
 from scipy.stats import logistic as scipy_logistic
 
-from psychoanalyze.data import hierarchical, subjects
-from psychoanalyze.plot import template
+from psychoanalyze.data import subjects
 
 dims = ["Amp2", "Width2", "Freq2", "Dur2", "Active Channels", "Return Channels"]
 index_levels = dims
@@ -44,7 +42,9 @@ def load(data_path: Path) -> pl.DataFrame:
 
 
 def days(blocks: pl.DataFrame, intervention_dates: pl.DataFrame) -> pl.DataFrame:
-    intervention_dates = intervention_dates.join(intervention_dates, on="Subject", how="left").with_columns(
+    intervention_dates = intervention_dates.join(
+        intervention_dates, on="Subject", how="left"
+    ).with_columns(
         (pl.col("Date") - pl.col("Surgery Date")).dt.total_days().alias("Days"),
     )
     return blocks
@@ -58,35 +58,6 @@ def n_trials(trials: pl.DataFrame) -> pl.DataFrame:
     channel_config = ["Active Channels", "Return Channels"]
     return trials.group_by(session_cols + ref_stim_cols + channel_config).agg(
         pl.len().alias("n_trials"),
-    )
-
-
-def fit(
-    trials: pl.DataFrame,
-    draws: int = 1000,
-    tune: int = 1000,
-    chains: int = 2,
-    target_accept: float = 0.9,
-) -> az.InferenceData:
-    return hierarchical.fit(
-        trials=trials,
-        draws=draws,
-        tune=tune,
-        chains=chains,
-        target_accept=target_accept,
-    )
-
-
-def curve_credible_band(
-    idata: az.InferenceData,
-    x: np.ndarray | list[float],
-    hdi_prob: float = 0.9,
-) -> pl.DataFrame:
-    return hierarchical.curve_credible_band(
-        idata=idata,
-        x=x,
-        block_idx=0,
-        hdi_prob=hdi_prob,
     )
 
 
@@ -104,7 +75,6 @@ def plot_thresholds(blocks: pl.DataFrame) -> go.Figure:
         error_y_minus="err-",
         color="Subject",
         color_discrete_map={"U": "#e41a1c", "Y": "#377eb8", "Z": "#4daf4a"},
-        template=template,
     )
 
 
