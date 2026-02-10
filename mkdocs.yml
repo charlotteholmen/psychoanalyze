@@ -1,0 +1,98 @@
+site_name: PsychoAnalyze
+site_url: https://docs.psychoanalyze.io
+theme:
+  name: material
+  icon:
+    logo: material/chart-bell-curve-cumulative
+  favicon: assets/logo_bgwhite.png
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      primary: teal
+      scheme: default
+      toggle:
+        icon: material/toggle-switch-off-outline
+        name: Switch to dark mode
+    - media: "(prefers-color-scheme: dark)"
+      primary: teal
+      scheme: slate
+      toggle:
+        icon: material/toggle-switch
+        name: Switch to light mode
+  features:
+    - navigation.instant
+    - navigation.tracking
+    - navigation.tabs
+    - navigation.tabs.sticky
+    - navigation.indexes
+    - toc.follow
+    - content.action.edit
+    - content.code.copy
+    - announce.dismiss
+  custom_dir: docs/overrides
+plugins:
+- search
+- mkdocstrings:
+    handlers:
+      python:
+        options:
+          show_root_heading: true
+          show_submodules: true
+          members_order: source
+repo_url: https://github.com/psychoanalyze/psychoanalyze
+edit_uri: edit/main/docs/
+markdown_extensions:
+  - admonition
+  - pymdownx.details
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.superfences
+  - pymdownx.tabbed:
+      alternate_style: true
+  - tables
+  - toc:
+      permalink: true
+      title: On this page
+  - footnotes
+  - attr_list
+  - md_in_html
+  - pymdownx.emoji:
+      emoji_index: !!python/name:materialx.emoji.twemoji
+      emoji_generator: !!python/name:materialx.emoji.to_svg
+watch:
+  - psychoanalyze
+  - tests
+nav:
+  - Getting Started:
+    - 'index.md'
+    - Dashboard:
+      - 'dashboard/index.md'
+      - Input Panel: 'dashboard/input.md'
+      - Visualization Panel: 'dashboard/viz.md'
+      - Output Panel: 'dashboard/output.md'
+      - Strength-Duration Analysis: 'dashboard/strength_duration.md'
+      - Weber's Law Analysis: 'dashboard/weber.md'
+    - Contributing: 'contributing.md'
+  - Technical Reference:
+    - Overview: 'technical-reference/index.md'
+    - System Architecture: 'technical-reference/architecture.md'
+    - Hierarchical Bayesian Modeling: 'technical-reference/hierarchical-modeling.md'
+    - Advanced Analysis Techniques: 'technical-reference/advanced-analysis.md'
+    - Agent Orchestration: 'technical-reference/agent-orchestration.md'
+    - Allure Dashboard: 'technical-reference/allure-dashboard.md'
+  - Specifications & Design:
+    - Overview: 'specs/index.md'
+    - Architecture Diagrams: 'architecture-diagrams/index.md'
+  - API Reference:
+    - Psychoanalyze: 'api.md'
+extra_javascript:
+  - javascripts/katex.js
+  - https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.7/katex.min.js
+  - https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.7/contrib/auto-render.min.js
+extra_css:
+  - https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.7/katex.min.css
+extra:
+  homepage: https://psychoanalyze.io

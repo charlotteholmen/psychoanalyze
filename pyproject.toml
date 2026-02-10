@@ -1,0 +1,122 @@
+[project]
+name = "psychoanalyze"
+version = "1.0.0-alpha.1"
+description = "Interactive data analysis and simulation for psychophysics."
+authors = [{ name = "Ty Schlichenmeyer", email = "t.schlic@wustl.edu" }]
+license = { text = "MIT" }
+readme = "README.md"
+keywords = ["psychophysics", "neuroscience", "psychology", "python"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Environment :: Web Environment",
+    "Framework :: marimo",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Natural Language :: English",
+    "Programming Language :: Python :: 3",
+    "Topic :: Scientific/Engineering :: Visualization",
+    "Topic :: Scientific/Engineering :: Information Analysis",
+    "Topic :: Scientific/Engineering :: Medical Science Apps.",
+]
+urls = { JupyterHub = "https://nb.psychoanalyze.io" }
+requires-python = ">=3.14"
+
+dependencies = [
+    "altair>=5.2.0",
+    "polars>=1.0.0",
+    "patito>=0.7.0",
+    "plotly>=5.18.0",
+    "scipy>=1.10.1",
+    "arviz[preview]>=0.18.0",
+    "bambi>=0.14.0",
+    "pymc>=5.18.0",
+    "pyzmq>=27.1.0",
+    "google-genai>=1.61.0",
+    "pydantic-ai>=1.50.0",
+    "pyarrow>=23.0.0",
+    "wigglystuff>=0.2.0",
+    "xarray>=2026.1.0",
+    "pandas>=3.0.0",
+    "pandera>=0.29.0",
+]
+
+[project.scripts]
+psychoanalyze = "psychoanalyze.main:app"
+
+[dependency-groups]
+dev = [
+    "marimo[lsp,mcp]>=0.19.7",
+    "pytest>=9.0.2",
+    "ruff>=0.14.14",
+    "hypothesis>=6.79.0",
+    "python-lsp-server>=1.14.0",
+    "websockets>=15.0.1",
+    "python-lsp-ruff>=2.3.0",
+    "vegafusion>=2.0.3",
+    "vl-convert-python>=1.9.0.post1",
+    "datacontract-cli>=0.11.4",
+    "pytest-watcher>=0.6.3",
+    "pytest-bdd>=8.1.0",
+    "ty>=0.0.15",
+    "allure-pytest>=2.15.3",
+]
+
+docs = [
+    "mkdocs-material>=9.1.21",
+    "mkdocstrings[python]>=0.22.0",
+]
+
+[tool.semantic_release]
+version_toml = ["pyproject.toml:project.version"]
+build_command = "uv build"
+commit_message = "chore(release): release {version}"
+
+[tool.semantic_release.branches.alpha]
+match = "^alpha"
+prerelease = true
+prerelease_token = "alpha"
+
+[tool.semantic_release.commit_parser_options]
+allowed_tags = [
+    "feat",
+    "fix",
+    "ci",
+    "docs",
+    "test",
+    "dash",
+    "dev",
+    "deps",
+    "style",
+    "refactor",
+    "perf",
+    "chore",
+    "nb",
+]
+
+
+[tool.ruff]
+fix = true
+
+[tool.ruff.lint]
+ignore = ["S101", "S311", "D211", "D213", "RUF002", "CPY001"]
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*.py" = ["D100", "D103", "ANN201"]
+"nbs/*.py" = ["F841"]
+
+[tool.pytest.ini_options]
+addopts = ["--import-mode=importlib", "--alluredir=allure-results"]
+
+[build-system]
+requires = ["uv_build>=0.9.27,<0.10.0"]
+build-backend = "uv_build"
+
+[tool.marimo.language_servers.pylsp]
+enabled = true               # Enable/disable the Python language server
+enable_ruff = true           # Linting with ruff (enabled by default, if installed)
+
+[tool.marimo.diagnostics]
+enabled = true               # Show diagnostics in the editor
