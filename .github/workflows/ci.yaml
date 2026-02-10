@@ -14,7 +14,7 @@ jobs:
   test:
     runs-on: ubuntu-latest
     permissions:
-      contents: read
+      contents: write
       pull-requests: write
       checks: write
     steps:
@@ -50,6 +50,15 @@ jobs:
           allure_history: allure-history
           keep_reports: 20
 
+      - name: Deploy Allure report to GitHub Pages
+        if: always()
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_branch: gh-pages
+          publish_dir: allure-history
+          destination_dir: reports
+
       - name: Upload Allure report as artifact
         if: always()
         uses: actions/upload-artifact@v4
@@ -64,16 +73,16 @@ jobs:
         with:
           github-token: ${{secrets.GITHUB_TOKEN}}
           script: |
+            const reportUrl = `https://${context.repo.owner}.github.io/${context.repo.repo}/reports/${{ github.run_number }}/`;
             const artifactUrl = `${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}`;
             const comment = `## 📊 Allure Test Report
             
-            The Allure test report has been generated and is available as an artifact.
+            **🌐 View Online:** [Allure Report](${reportUrl})
             
-            **📥 Download Report:** [View Workflow Run](${artifactUrl}) → Download "allure-report" artifact
+            **📥 Download Artifact:** [Workflow Run](${artifactUrl}) → "allure-report" artifact
             
-            **Workflow Run:** [#${{ github.run_number }}](${artifactUrl})
-            
-            _To view the report, download and extract the artifact, then open \`index.html\` in your browser._`;
+            ---
+            *Report #${{ github.run_number }} from [workflow run](${artifactUrl})*`;
             
             github.rest.issues.createComment({
               issue_number: context.issue.number,
