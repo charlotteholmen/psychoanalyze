@@ -4,11 +4,10 @@ from psychoanalyze import plot, psi
 
 
 class TestPsychometricFunction:
-    def test_preparing_plot_of_psychometric_function(self) -> None:
-
-
-        fig = psi.plot()
+    def test_psi_plot_empty_dataframe(self):
+        fig = psi.plot(points=pd.DataFrame({"percent_correct": [], "magnitude": []}))
         assert fig.layout.yaxis.title.text == "percent_correct"
+        assert fig.layout.xaxis.title.text == "magnitude"
 
 
 class TestPlotsEntrypoint:
