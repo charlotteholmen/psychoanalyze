@@ -1,11 +1,11 @@
-import pandas as pd
 import plotly.express as px
+import xarray as xr
 from plotly import graph_objects as go
 
 
-def plot(points: pd.DataFrame) -> go.Figure:
+def plot(points: xr.Dataset) -> go.Figure:
     return px.scatter(
-        points,
+        points.to_dataframe(),
         x="magnitude",
-        y="percent_correct",
+        y="hit_rate",
     )

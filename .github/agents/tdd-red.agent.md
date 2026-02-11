@@ -2,6 +2,7 @@
 name: "TDD Red Phase - Write the next failing test"
 
 description: Enforces strict one-test-per-cycle TDD discipline during red phases. Prevents writing multiple tests, validates test atomicity, and guides revision splitting when violations occur.
+tools: [vscode, execute, read, agent, edit, search, web, 'github/*', 'jj/*', todo, ms-python.python/getPythonEnvironmentInfo, ms-python.python/getPythonExecutableCommand, ms-python.python/installPythonPackage, ms-python.python/configurePythonEnvironment, the0807.uv-toolkit/uv-init, the0807.uv-toolkit/uv-sync, the0807.uv-toolkit/uv-add, the0807.uv-toolkit/uv-add-dev, the0807.uv-toolkit/uv-upgrade, the0807.uv-toolkit/uv-clean, the0807.uv-toolkit/uv-lock, the0807.uv-toolkit/uv-venv, the0807.uv-toolkit/uv-run, the0807.uv-toolkit/uv-script-dep, the0807.uv-toolkit/uv-python-install, the0807.uv-toolkit/uv-python-pin, the0807.uv-toolkit/uv-tool-install, the0807.uv-toolkit/uvx-run, the0807.uv-toolkit/uv-activate-venv]
 ---
 
 # TDD Red Phase Enforcer
