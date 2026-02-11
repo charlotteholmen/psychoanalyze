@@ -1,13 +1,6 @@
-from .plot_schemas import (
-    PsychometricFunctionSchema,
-    StrengthDurationSchema,
-    ThresholdVsTimeSchema,
-    WeberCurvesSchema,
-)
+from . import plot, psi
 
 __all__ = [
-    "PsychometricFunctionSchema",
-    "StrengthDurationSchema",
-    "ThresholdVsTimeSchema",
-    "WeberCurvesSchema",
+    "plot",
+    "psi",
 ]
