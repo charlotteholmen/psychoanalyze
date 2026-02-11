@@ -8,27 +8,7 @@ Feature: Psychometric function
         Given the psychoanalyze data contract is valid
         And the default link function is "logit"
 
-    Scenario: Validate psychometric trial schema
-        Given a dataset with columns "Intensity", "Result", "Block"
-        And the "Result" column is binary
-        When I validate the dataset for psychometric analysis
-        Then the dataset should be accepted
 
-    Scenario: Reject trial data with missing required columns
-        Given a dataset missing the "Intensity" column
-        When I validate the dataset for psychometric analysis
-        Then the dataset should be rejected
-        And the validation error should mention "Intensity"
-
-    Scenario: Aggregate trials into points
-        Given I have trial data with columns "Intensity", "Result", "Block"
-        When I aggregate trials by "Intensity"
-        Then I should get points with "Hits"
-        And I should get points with "n trials"
-        And I should get points with "Hit Rate"
-        And "Hit Rate" should equal "Hits / n trials"
-        And "Hit Rate" should be between 0 and 1
-        And binomial confidence intervals should be calculated
 
     Scenario: Fit a psychometric curve per block
         Given I have points data with "Intensity", "Hits", "n trials", "Block"

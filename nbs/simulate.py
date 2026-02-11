@@ -13,18 +13,23 @@ app = marimo.App(width="full", app_title="PsychoAnalyze")
 @app.cell
 def _():
     import psychoanalyze as ps
-    import pandas as pd
+    import xarray as xr
 
-    return pd, ps
+    return ps, xr
 
 
 @app.cell
-def _(pd, ps):
-    ps.psi.plot(points=pd.DataFrame({
-        "magnitude": [0.1, 0.2, 0.3],
-        "hit_rate": [0.1, 0.5, 0.7],
-        "n_trials": [100, 100, 100]
-    }))
+def _(xr):
+    dataset=xr.Dataset({
+        "magnitude": ("sample", [0.1, 0.2, 0.3]),
+        "hit_rate": ("sample", [0.1, 0.5, 0.7]),
+    })
+    return (dataset,)
+
+
+@app.cell
+def _(dataset, ps):
+    ps.psi.plot(dataset)
     return
 
 
