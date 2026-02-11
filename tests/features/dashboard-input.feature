@@ -1,3 +1,4 @@
+@tier:integration
 Feature: Dashboard input data and simulation
 
     As a researcher

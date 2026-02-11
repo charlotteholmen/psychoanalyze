@@ -1,3 +1,4 @@
+@tier:e2e
 Feature: Dashboard visualization panel
 
     As a researcher

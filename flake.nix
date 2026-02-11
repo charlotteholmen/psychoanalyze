@@ -15,7 +15,7 @@
       };
 
       devShells.x86_64-linux.default = pkgs.mkShell {
-        buildInputs = [ pkgs.allure pkgs.nushell ];
+        buildInputs = [ pkgs.allure pkgs.nushell pkgs.go ];
         shellHook = ''exec ${pkgs.nushell}/bin/nu'';
       };
 

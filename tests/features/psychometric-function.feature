@@ -1,3 +1,4 @@
+@tier:integration
 Feature: Psychometric function
 
     As a researcher

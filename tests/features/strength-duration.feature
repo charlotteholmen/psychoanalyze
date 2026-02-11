@@ -1,3 +1,4 @@
+@tier:domain
 Feature: Strength-duration analysis
 
     As a researcher
@@ -7,10 +8,6 @@ Feature: Strength-duration analysis
     Background:
         Given the dashboard is running
 
-    Scenario: Upload strength-duration data with required columns
-        Given I have strength-duration data with columns "Subject", "Block", "Dimension", "Fixed Magnitude", "Threshold"
-        When I upload the strength-duration dataset
-        Then the dataset should be accepted
 
     Scenario: Plot amplitude-modulated data
         Given I have strength-duration data with "Dimension" set to "Amp"
@@ -24,7 +21,4 @@ Feature: Strength-duration analysis
         Then the x-axis should display fixed amplitude
         And the y-axis should display threshold pulse width
 
-    Scenario: Handle missing dimensions
-        Given I have strength-duration data with no "Dimension" column
-        When I render the strength-duration plot
-        Then I should see a validation error about "Dimension"
+

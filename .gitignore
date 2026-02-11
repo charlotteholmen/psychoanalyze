@@ -170,3 +170,6 @@ allure-report
 .direnv
 
 docs/assets/**/*.svg
+
+# Go build artifacts
+tools/pyramid-watcher/pyramid-watcher

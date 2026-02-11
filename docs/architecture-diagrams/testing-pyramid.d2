@@ -1,0 +1,72 @@
+# Testing pyramid — auto-generated from tests/features/
+# Do not edit by hand; run tools/pyramid-watcher
+
+title: Testing Pyramid — tests/features/ {
+  shape: text
+  near: top-center
+  style.font-size: 22
+  style.bold: true
+}
+e2e_tier: E2E / UI {
+  shape: parallelogram
+  style.fill: "#ffebee"
+  style.stroke: "#c62828"
+  style.stroke-width: 2
+  dashboard_output: dashboard-output.feature {
+    style.fill: "#fff5f5"
+    s1: Filter plots by selected blocks
+    s2: Export plot formats
+    s3: Export data formats
+  }
+  dashboard_visualization: dashboard-visualization.feature {
+    style.fill: "#fff5f5"
+    s1: Show a credible band around the fitted curve
+    s2: Enable interactive exploration
+  }
+}
+integration_tier: Integration {
+  shape: parallelogram
+  style.fill: "#e3f2fd"
+  style.stroke: "#1565c0"
+  style.stroke-width: 2
+  dashboard_input: dashboard-input.feature {
+    style.fill: "#e8f0fe"
+    s1: Upload trials data in a supported format
+    s2: Reject trials data with a missing column
+    s3: Simulate trials from model parameters
+    s4: Default link function is logit
+    s5: Toggle link function visibility
+    s6: Lock a simulation parameter
+    s7: Reuse cached Bayesian fit artifacts
+  }
+  psychometric_function: psychometric-function.feature {
+    style.fill: "#e8f0fe"
+    s1: Fit a psychometric curve per block
+    s2: Include guess and lapse rates in the psychometric function
+    s3: Compute a credible band for the psychometric curve
+    s4: Render the psychometric function plot
+    s5: Apply intensity scale transforms
+    s6: Restrict the plot to selected blocks
+    s7: Generate simulated trials from model parameters
+    s8: Export plot and data artifacts
+  }
+}
+domain_tier: Domain / Contract {
+  shape: parallelogram
+  style.fill: "#e8f5e9"
+  style.stroke: "#2e7d32"
+  style.stroke-width: 2
+  strength_duration: strength-duration.feature {
+    style.fill: "#f1f8e9"
+    s1: Plot amplitude-modulated data
+    s2: Plot width-modulated data
+  }
+  weber_analysis: weber-analysis.feature {
+    style.fill: "#f1f8e9"
+    s1: Upload Weber data with required columns
+    s2: Render Weber scatter plot with trendline
+    s3: Compute the Weber fraction
+  }
+}
+domain_tier -> integration_tier
+integration_tier -> e2e_tier

@@ -1,3 +1,4 @@
+@tier:e2e
 Feature: Dashboard output panel
 
     As a researcher

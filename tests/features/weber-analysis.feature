@@ -1,3 +1,4 @@
+@tier:domain
 Feature: Weber's law analysis
 
     As a researcher
