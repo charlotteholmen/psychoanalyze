@@ -1,0 +1,11 @@
+{
+    "servers": {
+        "jj": {
+            "command": "npx",
+            "args": [
+                "-y",
+                "jj-mcp-server"
+            ]
+        }
+    }
+}
