@@ -39,6 +39,13 @@ integration_tier: Integration {
     s6: Lock a simulation parameter
     s7: Reuse cached Bayesian fit artifacts
   }
+  data_generation_simulation: data-generation-simulation.feature {
+    style.fill: "#e8f0fe"
+    s1: Run prior predictive sampling with default draws
+    s2: Run prior predictive sampling with a specified number of draws
+    s3: Generate simulated trial-level data from prior predictive samples
+    s4: Export prior predictive samples for downstream use
+  }
   psychometric_function: psychometric-function.feature {
     style.fill: "#e8f0fe"
     s1: Fit a psychometric curve per block
@@ -48,7 +55,6 @@ integration_tier: Integration {
     s5: Apply intensity scale transforms
     s6: Restrict the plot to selected blocks
     s7: Generate simulated trials from model parameters
-    s8: Export plot and data artifacts
   }
 }
 domain_tier: Domain / Contract {

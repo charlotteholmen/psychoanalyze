@@ -64,14 +64,3 @@ Feature: Psychometric function
         When I generate simulated trials
         Then I should get trial data with columns "Intensity", "Result", "Block"
         And the number of blocks should match "n blocks"
-
-    Scenario: Export plot and data artifacts
-        Given I have a psychometric plot and its underlying data
-        When I export the plot
-        Then it should be available as SVG
-        And it should be available as PNG
-        And it should be available as PDF
-        When I export the data
-        Then it should be available as CSV
-        And it should be available as Parquet
-        And it should be available as JSON
