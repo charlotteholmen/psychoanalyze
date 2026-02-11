@@ -3,4 +3,4 @@ class TestPsychometricFunction:
         from psychoanalyze import psi
 
         fig = psi.plot()
-        assert fig.layout.yaxis.title.text == "% Correct"
+        assert fig.layout.yaxis.title.text == "percent_correct"
