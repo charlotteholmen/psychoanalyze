@@ -168,3 +168,5 @@ allure-results
 allure-report
 
 .direnv
+
+docs/assets/**/*.svg
