@@ -1,279 +1,34 @@
 desired_plots: {
 	label: "Target plots"
-	detection: {
-		label: "Detection"
-		"Psychometric function": {
-			link: "layers.psychometric-function"
-			shape: sql_table
-			magnitude: float
-			hit_rate: float
-			n_trials: "int|None"
-		}
-		"Threshold vs Time": {
-			link: "layers.threshold-vs-time"
-			shape: sql_table
-			days: int
-			threshold: float
-			subject: str
-			ci_low: "float|None"
-			ci_high: "float|None"
-		}
-		"Strength-duration": {
-			link: "layers.strength-duration"
-			shape: sql_table
-			pulse_width: int
-			threshold: float
-			subject: str
-			ci_low: "float|None"
-			ci_high: "float|None"
-			Irh: "float|None"
-			τ: "float|None"
-		}
-	}
-	discrimination: {
-		label: "Discrimination"
-		"Weber curves": {
-			link: "layers.weber-curves"
-			shape: sql_table
-			standard: float
-			threshold: float
-			subject: str
-			ci_low: float
-			ci_high: float
-			β: float
-		}
-	}
+	"Psychometric function": {
+    link: "layers.psychometric-function"
+    schema: {
+      label: "Observed psychometric data"
+      shape: sql_table
+      magnitude: float
+      hit_rate: float
+      n_trials: int
+    }
+    type: scatter
+  }
 }
+
 
 data_model: {
-	label: "Data model"
-	trials_schema: {
-		shape: sql_table
-		label: "Trials"
-		magnitude: float
-		result: bool
-	}
-
-	points_schema: {
-		shape: sql_table
-		label: "Points"
-		magnitude: float
-		hits: "int|None"
-		n_trials: "int|None"
-		hit_rate: float {constraint: "hits / n_trials"}
-	}
-
-	blocks_schema: {
-		shape: sql_table
-		label: "Blocks"
-		subject: str
-		date: date
-		threshold: float
-		slope: float
-		ci_low: "float|None"
-		ci_high: "float|None"
-	}
-	subjects_schema: {
-		shape: sql_table
-		label: "Subjects"
-		subject: str
-		intervention_date: date
-	}
-	trials_schema -> points_schema
-	points_schema -> blocks_schema
+  label: "Data model"
+  trials_schema: {
+    shape: sql_table
+    label: "Trials"
+    magnitude: float
+    result: bool
+  }
 
 }
 
-data_model.points_schema -> desired_plots.detection."Psychometric function"
-data_model.subjects_schema -> desired_plots.detection."Threshold vs Time"
+data_model.trials_schema -> desired_plots."Psychometric function"
 # data_model.detection.longitudinal_schema -> desired_plots.detection."Threshold vs Time"
 # data_model.discrimination.jnd_estimates -> desired_plots.discrimination."Weber curves"
 # data_model.detection.sd_params -> desired_plots.detection."Strength-duration"
-
-
-
-layers: {
-	"psychometric-function": {
-		label: "Psychometric function"
-		data: {
-		label: "Data"
-	}
-
-
-	plot: {
-		y_axis: "Y Axis" {
-			"percent_correct"
-		}
-		x_axis: "Magnitude"
-	}
-
-	data_model.points_schema -> plot
-
-	}
-
-	"threshold-vs-time": {
-		label: "Threshold vs Time"
-
-		plot: {
-			label: "Plot"
-
-			axes: {
-				label: "Axes"
-				x_axis: "Time (selectable scale)"
-				y_axis: "Threshold Amplitude (μA)"
-			}
-
-			controls: {
-				label: "View controls"
-				x_scale: "linear | log"
-				x_units: "raw | z-score"
-			}
-
-			markers: {
-				label: "Markers"
-				threshold_points: "Scatter: x₀ per block, colored by subject"
-				trend_line: "Optional: LOESS smooth or moving average"
-				confidence_bands: "95% CI from Bayesian fit or bootstrap"
-			}
-
-			visual: {
-				label: "Visual elements"
-				colors: "Subject colormap (U=#e41a1c, Y=#377eb8, Z=#4daf4a)"
-				error_bars: "95% CI from posterior"
-				facets: "Optional: separate panels by PW or condition"
-			}
-		}
-
-		data: {
-			label: "Data"
-
-			data_model.blocks_schema -> data_model.sessions_schema: "join on Block → Session"
-			data_model.sessions_schema -> data_model.time_views: "derive views"
-			data_model.time_views -> data_model.longitudinal_schema: "aggregate by Days"
-		}
-
-		data -> plot: "Blocks → Sessions → longitudinal trend"
-
-		data_model.longitudinal_schema.Days -> plot.axes.x_axis
-		data_model.time_views.Days_log -> plot.axes.x_axis
-		data_model.time_views.Days_z -> plot.axes.x_axis
-		plot.controls.x_scale -> plot.axes.x_axis
-		plot.controls.x_units -> plot.axes.x_axis
-		data_model.longitudinal_schema.threshold_mean -> plot.axes.y_axis
-		data_model.longitudinal_schema.threshold_mean -> plot.markers.threshold_points
-		data_model.longitudinal_schema.threshold_ci_low -> plot.markers.confidence_bands
-		data_model.longitudinal_schema.threshold_ci_high -> plot.markers.confidence_bands
-		data_model.longitudinal_schema.Subject -> plot.visual.colors
-		data_model.longitudinal_schema.threshold_ci_low -> plot.visual.error_bars
-		data_model.longitudinal_schema.threshold_ci_high -> plot.visual.error_bars
-	}
-
-	"weber-curves": {
-		label: "Weber curves"
-
-		plot: {
-			label: "Plot"
-
-			axes: {
-				label: "Axes"
-				x_axis: "Standard Intensity (selectable scale)"
-				y_axis: "ΔI (JND, μA)"
-				secondary: "Weber fraction k = ΔI/I"
-			}
-
-			controls: {
-				label: "View controls"
-				x_scale: "linear | log"
-				x_units: "raw | z-score"
-			}
-
-			markers: {
-				label: "Markers"
-				jnd_points: "Scatter: difference thresholds at each standard"
-				weber_line: "Line: Weber's law ΔI = k·I"
-				near_miss_curve: "Line: Near-miss: ΔI = k·I^β (β ≈ 0.9)"
-			}
-
-			visual: {
-				label: "Visual elements"
-				colors: "Subject colormap (U/Y/Z)"
-				log_log_scale: "Both axes log for power law"
-				reference_line: "Dashed: perfect Weber (slope=1)"
-			}
-		}
-
-		data: {
-			label: "Data"
-
-			data_model.increment_trials -> data_model.standard_views: "derive views"
-			data_model.standard_views -> data_model.jnd_estimates: "psychometric fit per Standard"
-			data_model.jnd_estimates -> data_model.weber_params: "power law fit: log(ΔI) ~ β·log(I)"
-		}
-
-		data -> plot: "Increment trials → JND → Weber curve"
-
-		plot.controls.x_scale -> plot.axes.x_axis
-		plot.controls.x_units -> plot.axes.x_axis
-		data_model.jnd_estimates.threshold -> plot.axes.y_axis
-		data_model.jnd_estimates."Weber fraction" -> plot.axes.secondary
-		data_model.jnd_estimates.threshold -> plot.markers.jnd_points
-		data_model.weber_params.k -> plot.markers.weber_line
-		data_model.weber_params.β -> plot.markers.near_miss_curve
-		data_model.jnd_estimates.Subject -> plot.visual.colors
-	}
-
-	"strength-duration": {
-		label: "Strength-duration"
-
-		plot: {
-			label: "Plot"
-
-			axes: {
-				label: "Axes"
-				x_axis: "Pulse Width (selectable scale)"
-				y_axis: "Threshold Current (μA)"
-			}
-
-			controls: {
-				label: "View controls"
-				x_scale: "linear | log"
-				x_units: "raw | z-score"
-			}
-
-			markers: {
-				label: "Markers"
-				threshold_points: "Scatter: threshold at each PW"
-				sd_curve: "Line: I = Irh + (Irh·τ / PW)"
-				chronaxie_marker: "Vertical line at τ (2×Irh point)"
-			}
-
-			visual: {
-				label: "Visual elements"
-				colors: "Subject colormap (U/Y/Z)"
-				asymptotes: "Horizontal: Irh (rheobase)"
-				annotations: "τ value, Irh value"
-			}
-		}
-
-
-		data_model.pw_thresholds -> data_model.sd_params: "nonlinear fit: Weiss-Lapicque"
-
-		data_model -> plot: "PW trials → thresholds → S-D curve"
-
-		data_model.pw_thresholds."Pulse Width" -> plot.axes.x_axis
-		plot.controls.x_scale -> plot.axes.x_axis
-		plot.controls.x_units -> plot.axes.x_axis
-		data_model.pw_thresholds.threshold -> plot.axes.y_axis
-		data_model.pw_thresholds.threshold -> plot.markers.threshold_points
-		data_model.sd_params.Irh -> plot.markers.sd_curve
-		data_model.sd_params.τ -> plot.markers.sd_curve
-		data_model.sd_params.τ -> plot.markers.chronaxie_marker
-		data_model.sd_params.Irh -> plot.visual.asymptotes
-		data_model.sd_params.τ -> plot.visual.annotations
-		data_model.sd_params.Irh -> plot.visual.annotations
-		data_model.pw_thresholds.Subject -> plot.visual.colors
-	}
-}
 
 # required_data: {
 # 	link: "./psychoanalyze-data-contract.odcs.yaml"
@@ -407,3 +162,239 @@ layers: {
 # }
 
 # desired_plots -> required_data -> use_cases -> bdd_scenarios
+
+steps: {
+  with_blocks: {
+    blocks_schema: {
+      shape: sql_table
+      label: "Blocks"
+      subject: str
+      date: date
+      threshold: float
+      slope: float
+      ci_low: "float|None"
+      ci_high: "float|None"
+    }
+    subjects_schema: {
+      shape: sql_table
+      label: "Subjects"
+      subject: str
+      intervention_date: date
+    }
+    points_schema -> blocks_schema
+    data_model.subjects_schema -> desired_plots.detection."Threshold vs Time"
+    "Threshold vs Time": {
+        link: "layers.threshold-vs-time"
+        shape: sql_table
+        days: int
+        threshold: float
+        subject: str
+        ci_low: "float|None"
+        ci_high: "float|None"
+      }
+      "Strength-duration": {
+        link: "layers.strength-duration"
+        shape: sql_table
+        pulse_width: int
+        threshold: float
+        subject: str
+        ci_low: "float|None"
+        ci_high: "float|None"
+        Irh: "float|None"
+        τ: "float|None"
+      }
+  }
+  discrimination: {
+    label: "Discrimination"
+    "Weber curves": {
+      link: "layers.weber-curves"
+      shape: sql_table
+      standard: float
+      threshold: float
+      subject: str
+      ci_low: float
+      ci_high: float
+      β: float
+    }
+  }
+}
+
+layers: {
+  "psychometric-function": {
+    label: "Psychometric function"
+    data: {
+      label: "Data"
+    }
+
+    plot: {
+      y_axis: "Y Axis" {
+        "percent_correct"
+      }
+      x_axis: "Magnitude"
+    }
+
+    data_model.points_schema -> plot
+  }
+
+  "threshold-vs-time": {
+    label: "Threshold vs Time"
+
+    plot: {
+      label: "Plot"
+
+      axes: {
+        label: "Axes"
+        x_axis: "Time (selectable scale)"
+        y_axis: "Threshold Amplitude (μA)"
+      }
+
+      controls: {
+        label: "View controls"
+        x_scale: "linear | log"
+        x_units: "raw | z-score"
+      }
+
+      markers: {
+        label: "Markers"
+        threshold_points: "Scatter: x₀ per block, colored by subject"
+        trend_line: "Optional: LOESS smooth or moving average"
+        confidence_bands: "95% CI from Bayesian fit or bootstrap"
+      }
+
+      visual: {
+        label: "Visual elements"
+        colors: "Subject colormap (U=#e41a1c, Y=#377eb8, Z=#4daf4a)"
+        error_bars: "95% CI from posterior"
+        facets: "Optional: separate panels by PW or condition"
+      }
+    }
+
+    data: {
+      label: "Data"
+
+      data_model.blocks_schema -> data_model.sessions_schema: "join on Block → Session"
+      data_model.sessions_schema -> data_model.time_views: "derive views"
+      data_model.time_views -> data_model.longitudinal_schema: "aggregate by Days"
+    }
+
+    data -> plot: "Blocks → Sessions → longitudinal trend"
+
+    data_model.longitudinal_schema.Days -> plot.axes.x_axis
+    data_model.time_views.Days_log -> plot.axes.x_axis
+    data_model.time_views.Days_z -> plot.axes.x_axis
+    plot.controls.x_scale -> plot.axes.x_axis
+    plot.controls.x_units -> plot.axes.x_axis
+    data_model.longitudinal_schema.threshold_mean -> plot.axes.y_axis
+    data_model.longitudinal_schema.threshold_mean -> plot.markers.threshold_points
+    data_model.longitudinal_schema.threshold_ci_low -> plot.markers.confidence_bands
+    data_model.longitudinal_schema.threshold_ci_high -> plot.markers.confidence_bands
+    data_model.longitudinal_schema.Subject -> plot.visual.colors
+    data_model.longitudinal_schema.threshold_ci_low -> plot.visual.error_bars
+    data_model.longitudinal_schema.threshold_ci_high -> plot.visual.error_bars
+  }
+
+  "weber-curves": {
+    label: "Weber curves"
+
+    plot: {
+      label: "Plot"
+
+      axes: {
+        label: "Axes"
+        x_axis: "Standard Intensity (selectable scale)"
+        y_axis: "ΔI (JND, μA)"
+        secondary: "Weber fraction k = ΔI/I"
+      }
+
+      controls: {
+        label: "View controls"
+        x_scale: "linear | log"
+        x_units: "raw | z-score"
+      }
+
+      markers: {
+        label: "Markers"
+        jnd_points: "Scatter: difference thresholds at each standard"
+        weber_line: "Line: Weber's law ΔI = k·I"
+        near_miss_curve: "Line: Near-miss: ΔI = k·I^β (β ≈ 0.9)"
+      }
+
+      visual: {
+        label: "Visual elements"
+        colors: "Subject colormap (U/Y/Z)"
+        log_log_scale: "Both axes log for power law"
+        reference_line: "Dashed: perfect Weber (slope=1)"
+      }
+    }
+
+    data: {
+      label: "Data"
+
+      data_model.increment_trials -> data_model.standard_views: "derive views"
+      data_model.standard_views -> data_model.jnd_estimates: "psychometric fit per Standard"
+      data_model.jnd_estimates -> data_model.weber_params: "power law fit: log(ΔI) ~ β·log(I)"
+    }
+
+    data -> plot: "Increment trials → JND → Weber curve"
+
+    plot.controls.x_scale -> plot.axes.x_axis
+    plot.controls.x_units -> plot.axes.x_axis
+    data_model.jnd_estimates.threshold -> plot.axes.y_axis
+    data_model.jnd_estimates."Weber fraction" -> plot.axes.secondary
+    data_model.jnd_estimates.threshold -> plot.markers.jnd_points
+    data_model.weber_params.k -> plot.markers.weber_line
+    data_model.weber_params.β -> plot.markers.near_miss_curve
+    data_model.jnd_estimates.Subject -> plot.visual.colors
+  }
+
+  "strength-duration": {
+    label: "Strength-duration"
+
+    plot: {
+      label: "Plot"
+
+      axes: {
+        label: "Axes"
+        x_axis: "Pulse Width (selectable scale)"
+        y_axis: "Threshold Current (μA)"
+      }
+
+      controls: {
+        label: "View controls"
+        x_scale: "linear | log"
+        x_units: "raw | z-score"
+      }
+
+      markers: {
+        label: "Markers"
+        threshold_points: "Scatter: threshold at each PW"
+        sd_curve: "Line: I = Irh + (Irh·τ / PW)"
+        chronaxie_marker: "Vertical line at τ (2×Irh point)"
+      }
+
+      visual: {
+        label: "Visual elements"
+        colors: "Subject colormap (U/Y/Z)"
+        asymptotes: "Horizontal: Irh (rheobase)"
+        annotations: "τ value, Irh value"
+      }
+    }
+
+    data_model.pw_thresholds -> data_model.sd_params: "nonlinear fit: Weiss-Lapicque"
+
+    data_model -> plot: "PW trials → thresholds → S-D curve"
+
+    data_model.pw_thresholds."Pulse Width" -> plot.axes.x_axis
+    plot.controls.x_scale -> plot.axes.x_axis
+    plot.controls.x_units -> plot.axes.x_axis
+    data_model.pw_thresholds.threshold -> plot.axes.y_axis
+    data_model.pw_thresholds.threshold -> plot.markers.threshold_points
+    data_model.sd_params.Irh -> plot.markers.sd_curve
+    data_model.sd_params.τ -> plot.markers.sd_curve
+    data_model.sd_params.τ -> plot.markers.chronaxie_marker
+    data_model.sd_params.Irh -> plot.visual.asymptotes
+    data_model.sd_params.τ -> plot.visual.annotations
+    data_model.sd_params.Irh -> plot.visual.annotations
+    data_model.pw_thresholds.Subject -> plot.visual.colors
+  }
+}
