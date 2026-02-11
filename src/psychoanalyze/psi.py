@@ -3,8 +3,9 @@ import plotly.express as px
 from plotly import graph_objects as go
 
 
-def plot() -> go.Figure:
+def plot(points: pd.DataFrame) -> go.Figure:
     return px.scatter(
-        pd.DataFrame({"percent_correct": []}),
+        points,
+        x="magnitude",
         y="percent_correct",
     )
