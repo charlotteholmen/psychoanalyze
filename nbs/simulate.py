@@ -27,7 +27,7 @@ def _():
 
     import arviz_plots as azp
 
-    return alt, azp, azs, expit, mo, np, pd, xr
+    return alt, azp, azs, expit, mo, np, xr
 
 
 @app.cell
@@ -35,8 +35,10 @@ def _(mo):
     x0_mu = mo.ui.number(label="x0_mu", value=0)
     x0_sigma = mo.ui.number(label="x0_sigma", value=1)
     k_sigma = mo.ui.number(label="k_sigma", value=1)
-    mo.vstack([x0_mu, x0_sigma, k_sigma])
-    return k_sigma, x0_mu, x0_sigma
+    n_blocks = mo.ui.number(label="n_blocks", value=1)
+    n_trials_per_block = mo.ui.number(label="n_trials_per_block", value=50)
+    mo.vstack([x0_mu, x0_sigma, k_sigma, n_blocks, n_trials_per_block])
+    return k_sigma, n_blocks, n_trials_per_block, x0_mu, x0_sigma
 
 
 @app.cell
@@ -52,44 +54,59 @@ def _(k_sigma, x0_mu, x0_sigma):
 
 
 @app.cell
-def _(logistic_prior):
+def _(logistic_prior, n_blocks, n_trials_per_block):
     prior_samples = psy.simulate.run_prior_predictive(
-        n_trials=100,
+        n_blocks=int(n_blocks.value),
+        n_trials_per_block=int(n_trials_per_block.value),
         logistic_prior=logistic_prior,
     )
+    prior_samples
     return (prior_samples,)
 
 
 @app.cell
 def _(azs, prior_samples):
-    prior_params = (
-        (
-            azs.summary(prior_samples, group="prior", fmt="xarray").sel(
-                summary=["mean", "eti89_ub", "eti89_lb"]
-            )[["lambda", "gamma", "x0", "k"]]
-        )
-        .to_dataframe()
-        .T
+    summary_xr = azs.summary(prior_samples, group="prior", fmt="xarray").sel(
+        summary=["mean", "eti89_ub", "eti89_lb"]
     )
-    return (prior_params,)
+    summary_xr
+    return
 
 
 @app.cell
-def _(alt, expit, logistic_prior, np, pd, prior_params, prior_samples, xr):
-    x = (np.linspace(-3, 3) * logistic_prior.x0.sigma) + logistic_prior.x0.mu
+def _(prior_samples):
+    merged = prior_samples.prior.sel(draw=0, chain=0).merge(prior_samples.constant_data)
+    return (merged,)
 
-    mean_params = prior_params["mean"]
-    y = mean_params["gamma"] + (1 - mean_params["gamma"] - mean_params["lambda"]) * expit(
-        mean_params["k"] * (x - mean_params["x0"])
+
+@app.cell
+def _(logistic_prior, np, xr):
+    x = (np.linspace(-3, 3) * logistic_prior.x0.sigma) + logistic_prior.x0.mu
+    x_da = xr.DataArray(x, dims=["trial"], coords={"trial": x})
+    return (x_da,)
+
+
+@app.cell
+def _(expit, merged, x_da):
+    y = merged.gamma + (1 - merged.gamma - merged["lambda"]) * expit(
+        merged.k * (x_da - merged["x0"])
     )
+    return (y,)
+
+
+@app.cell
+def _():
+    return
+
+
+@app.cell
+def _(alt, merged, xr, y):
     fit_line = (
-        alt.Chart(data=pd.DataFrame({"x": x, "p": y})).mark_line().encode(x="x", y="p")
+        alt.Chart(y.to_dataframe(name="p").reset_index())
+        .mark_line()
+        .encode(x="trial", y="p", color="block")
     )
-    _sample_data_grouped = (
-        prior_samples.prior.sel(draw=0, chain=0)
-        .merge(prior_samples.constant_data)
-        .groupby("x")
-    )
+    _sample_data_grouped = merged.groupby(["x", "block_id"])
     data_points = (
         alt.Chart(
             xr.Dataset(
@@ -100,10 +117,12 @@ def _(alt, expit, logistic_prior, np, pd, prior_params, prior_samples, xr):
             )
             .to_dataframe()
             .reset_index()
+            .rename(columns={"block_id": "block"})
         )
         .mark_point()
-        .encode(x="x", y="p", size="n")
+        .encode(x="x", y="p", size="n", color=alt.Color("block:N", title="block"))
     )
+
     fit_line + data_points
     return
 

@@ -4388,7 +4388,7 @@ packages:
 - pypi: ./
   name: psychoanalyze
   version: 1.0.0a1
-  sha256: a99fc596aefae5be95bcebfa80f949ed38da005561af88548f22242361a5d48a
+  sha256: 406f0ab4455c80dd955ca876f102447986abf87675d263844521be001d7a48b6
   requires_dist:
   - altair>=5.2.0
   - polars>=1.0.0
@@ -4401,7 +4401,7 @@ packages:
   - xarray>=2026.1.0
   - pandas>=3.0.0
   - pandera>=0.29.0
-  - arviz-stats[xarray]>=0.8.0
+  - arviz-stats>=0.8.0
   - arviz-plots>=0.8.0
   - arviz-base>=0.8.2
   requires_python: '>=3.14'

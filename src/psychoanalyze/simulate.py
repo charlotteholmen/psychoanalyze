@@ -18,26 +18,50 @@ class LogisticPrior:
 
 
 def run_prior_predictive(
-    n_trials: int = 100,
+    n_blocks: int = 1,
+    n_trials_per_block: int | None = None,
     logistic_prior: LogisticPrior = LogisticPrior(
         x0=NormalParams(mu=0, sigma=0.5), k_sigma=2.0
     ),
 ) -> pm.backends.arviz.InferenceData:
+    n_trials = n_blocks * n_trials_per_block
+
+    level_grid = (np.arange(-3, 4) * logistic_prior.x0.sigma) + logistic_prior.x0.mu
     intensities = xr.DataArray(
-        np.random.choice(
-            (np.arange(-3, 4) * logistic_prior.x0.sigma) + logistic_prior.x0.mu,
-            size=n_trials,
-        ),
+        np.random.choice(level_grid, size=n_trials),
         dims="trial",
     )
-    with pm.Model():
-        intensity = pm.Data("x", intensities, dims="trial")
-        x0 = pm.Normal("x0", mu=logistic_prior.x0.mu, sigma=logistic_prior.x0.sigma)
-        k = pm.HalfNormal("k", sigma=logistic_prior.k_sigma)
-        gamma = pm.Beta("gamma", alpha=1, beta=9)
-        lam = pm.Beta("lambda", alpha=1, beta=9)
-        logit_p = pm.invlogit(k * (intensity - x0))
-        p = gamma + (1 - gamma - lam) * logit_p
+    block_indices = xr.DataArray(
+        np.repeat(np.arange(n_blocks), n_trials_per_block),
+        dims="trial",
+    )
+
+    coords: dict[str, np.ndarray] = {
+        "block": np.arange(n_blocks),
+        "trial": np.arange(n_trials),
+    }
+
+    with pm.Model(coords=coords):
+        intensity = pm.Data("x", intensities.values, dims="trial")
+        block_id = pm.Data(
+            "block_id", block_indices.values.astype(np.int32), dims="trial"
+        )
+
+        x0 = pm.Normal(
+            "x0",
+            mu=logistic_prior.x0.mu,
+            sigma=logistic_prior.x0.sigma,
+            dims="block",
+        )
+        k = pm.HalfNormal("k", sigma=logistic_prior.k_sigma, dims="block")
+        gamma = pm.Beta("gamma", alpha=1, beta=9, dims="block")
+        lam = pm.Beta("lambda", alpha=1, beta=9, dims="block")
+
+        logit_p = pm.invlogit(k[block_id] * (intensity - x0[block_id]))
+        p = gamma[block_id] + (
+            (1 - gamma[block_id] - lam[block_id]) * logit_p
+        )
         pm.Bernoulli("y", p=p, dims="trial")
+
         idata = pm.sample_prior_predictive()
     return idata
