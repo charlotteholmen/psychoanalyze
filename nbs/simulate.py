@@ -27,7 +27,7 @@ def _():
 
     import arviz_plots as azp
 
-    return alt, azp, azs, expit, mo, np, xr
+    return alt, azp, expit, mo, np, xr
 
 
 @app.cell
@@ -60,17 +60,7 @@ def _(logistic_prior, n_blocks, n_trials_per_block):
         n_trials_per_block=int(n_trials_per_block.value),
         logistic_prior=logistic_prior,
     )
-    prior_samples
     return (prior_samples,)
-
-
-@app.cell
-def _(azs, prior_samples):
-    summary_xr = azs.summary(prior_samples, group="prior", fmt="xarray").sel(
-        summary=["mean", "eti89_ub", "eti89_lb"]
-    )
-    summary_xr
-    return
 
 
 @app.cell
@@ -82,7 +72,10 @@ def _(prior_samples):
 @app.cell
 def _(logistic_prior, np, xr):
     x = (np.linspace(-3, 3) * logistic_prior.x0.sigma) + logistic_prior.x0.mu
-    x_da = xr.DataArray(x, dims=["trial"], coords={"trial": x})
+    x_da = xr.DataArray(
+        x,
+        coords={"x": x},
+    )
     return (x_da,)
 
 
@@ -95,16 +88,11 @@ def _(expit, merged, x_da):
 
 
 @app.cell
-def _():
-    return
-
-
-@app.cell
 def _(alt, merged, xr, y):
     fit_line = (
         alt.Chart(y.to_dataframe(name="p").reset_index())
         .mark_line()
-        .encode(x="trial", y="p", color="block")
+        .encode(x="x", y="p", color="block:N")
     )
     _sample_data_grouped = merged.groupby(["x", "block_id"])
     data_points = (
